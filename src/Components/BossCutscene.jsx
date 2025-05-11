@@ -1,25 +1,25 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from 'react'
 
 export default function BossCutscene({ onEnd }) {
-    const videoRef = useRef();
+  const videoRef = useRef()
 
-    useEffect(() => {
-        const cutscene = videoRef.current;
-        if (cutscene) {
-            cutscene.play();
-            cutscene.onended = onEnd;
-        }
-    }, [onEnd]);
+  useEffect(() => {
+    const cutscene = videoRef.current
+    if (cutscene) {
+      cutscene.play()
+      cutscene.onended = onEnd
+    }
+  }, [onEnd])
 
-    return (
-        <div className="cutscene-container">
-            <video
-                ref={videoRef}
-                src="assets/videos/cutscene-grizzle_guts.mp4"
-                className="cutscene"
-                muted
-                autoPlay
-            />
-        </div>
-    )
+  return (
+    <div className='cutscene-container'>
+      <video
+        ref={videoRef}
+        src='assets/videos/cutscene-grizzle_guts.mp4'
+        className='cutscene'
+        muted
+        autoPlay
+      />
+    </div>
+  )
 }

@@ -1,99 +1,96 @@
 export class EnemyRazor {
-    constructor(scene, x, y) {
-        this.scene = scene;
-        this.speed = 500;
-        this.direction = -1;
-        this.startX = x;
-        this.startY = y;
-        this.floatOffset = 0;
-        this.range = 200;
-        this.isJumping = false;
-        this.jumpVelocity = 0;
-        this.gravity = 20;
+  constructor(scene, x, y) {
+    this.scene = scene
+    this.speed = 500
+    this.direction = -1
+    this.startX = x
+    this.startY = y
+    this.floatOffset = 0
+    this.range = 200
+    this.isJumping = false
+    this.jumpVelocity = 0
+    this.gravity = 20
 
-        this.sprite = scene.physics.add
-            .sprite(x, y, "enemy-razor")
-            .setSize(450, 350)
-            .setOffset(25, 75)
-            .setDepth(6);
+    this.sprite = scene.physics.add
+      .sprite(x, y, 'enemy-razor')
+      .setSize(450, 350)
+      .setOffset(25, 75)
+      .setDepth(6)
 
-        // Configure physics properties
-        this.sprite.body.setFriction(0, 0);
-        this.sprite.body.setDragX(5000);
-        this.sprite.body.setBounce(0);
-        this.sprite.body.setAllowGravity(false);
-        this.sprite.setCollideWorldBounds(true);
+    // Configure physics properties
+    this.sprite.body.setFriction(0, 0)
+    this.sprite.body.setDragX(5000)
+    this.sprite.body.setBounce(0)
+    this.sprite.body.setAllowGravity(false)
+    this.sprite.setCollideWorldBounds(true)
 
-        const targetSize = 150;
-        const scaleX = targetSize / this.sprite.width;
-        const scaleY = targetSize / this.sprite.height;
-        this.sprite.setScale(scaleX, scaleY);
+    const targetSize = 150
+    const scaleX = targetSize / this.sprite.width
+    const scaleY = targetSize / this.sprite.height
+    this.sprite.setScale(scaleX, scaleY)
 
-        this.setupJumpingBehavior();
+    this.setupJumpingBehavior()
+  }
+
+  setupJumpingBehavior() {
+    this.jumpEvent = this.scene.time.addEvent({
+      delay: 1500,
+      callback: () => {
+        if (this.sprite && this.sprite.body) {
+          if (!this.isJumping) {
+            this.isJumping = true
+            this.jumpVelocity = -20
+          }
+        }
+      },
+      loop: true,
+    })
+  }
+
+  kill() {
+    if (this.sprite && this.sprite.active) {
+      this.sprite.destroy()
+    }
+  }
+
+  reset(x, y) {
+    if (this.sprite && this.sprite.active) {
+      this.sprite.setPosition(x, y)
+      this.sprite.setVelocity(0)
+      this.direction = -1
+    }
+  }
+
+  update() {
+    if (!this.sprite.active) return
+
+    const velocity = this.speed * this.direction
+    this.sprite.setVelocityX(velocity)
+    this.sprite.setFlipX(this.direction > 0)
+
+    const distance = this.sprite.x - this.startX
+
+    if (this.direction === 1 && distance >= this.range) {
+      this.direction = -1
+    } else if (this.direction === -1 && distance <= -this.range) {
+      this.direction = 1
     }
 
-    setupJumpingBehavior() {
-        this.jumpEvent = this.scene.time.addEvent({
-            delay: 1500,
-            callback: () => {
-                if (this.sprite && this.sprite.body) {
-                    if (!this.isJumping) {
-                        this.isJumping = true;
-                        this.jumpVelocity = -20;
-                    }
-                }
-            },
-            loop: true,
-        });
+    const waveAmplitude = 10
+    const waveSpeed = 0.015
+    if (!this.isJumping) {
+      this.sprite.y = this.startY + Math.sin(this.scene.time.now * waveSpeed) * waveAmplitude
     }
 
-    kill() {
-        if (this.sprite && this.sprite.active) {
-            this.sprite.destroy();
-        }
+    if (this.isJumping) {
+      this.sprite.y += this.jumpVelocity
+      this.jumpVelocity += (this.gravity * this.scene.game.loop.delta) / 500
+
+      if (this.sprite.y >= this.startY) {
+        this.sprite.y = this.startY
+        this.isJumping = false
+        this.jumpVelocity = 0
+      }
     }
-
-    reset(x, y) {
-        if (this.sprite && this.sprite.active) {
-            this.sprite.setPosition(x, y);
-            this.sprite.setVelocity(0);
-            this.direction = -1;
-        }
-    }
-
-    update() {
-        if (!this.sprite.active) return;
-
-        const velocity = this.speed * this.direction;
-        this.sprite.setVelocityX(velocity);
-        this.sprite.setFlipX(this.direction > 0);
-
-        const distance = this.sprite.x - this.startX;
-
-        if (this.direction === 1 && distance >= this.range) {
-            this.direction = -1;
-        } else if (this.direction === -1 && distance <= -this.range) {
-            this.direction = 1;
-        }
-
-        const waveAmplitude = 10;
-        const waveSpeed = 0.015;
-        if (!this.isJumping) {
-            this.sprite.y =
-                this.startY +
-                Math.sin(this.scene.time.now * waveSpeed) * waveAmplitude;
-        }
-
-        if (this.isJumping) {
-            this.sprite.y += this.jumpVelocity;
-            this.jumpVelocity +=
-                (this.gravity * this.scene.game.loop.delta) / 500;
-
-            if (this.sprite.y >= this.startY) {
-                this.sprite.y = this.startY;
-                this.isJumping = false;
-                this.jumpVelocity = 0;
-            }
-        }
-    }
+  }
 }
