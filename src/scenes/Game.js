@@ -4,26 +4,26 @@ import { PauseMenu } from '../ui/PauseMenu.js'
 import { LevelManager } from '../managers/LevelManager.js'
 import { BackgroundManager } from '../managers/BackgroundManager.js'
 import { InputManager } from '../managers/InputManager.js'
-import { gameState } from '../gameState.js'
-import { Player } from '../entities/Player.js'
-import { EnemyOda } from '../entities/EnemyOda.js'
-import { EnemyJumpingJack } from '../entities/EnemyJumpingJack.js'
-import { EnemyRunningRupert } from '../entities/EnemyRunningRupert.js'
-import { EnemyChunkyCheeks } from '../entities/EnemyChunkyCheeks.js'
-import { EnemySillySally } from '../entities/EnemySillySally.js'
-import { EnemySpider } from '../entities/EnemySpider.js'
-import { EnemySkitterSpindle } from '../entities/EnemySkitterSpindle.js'
-import { EnemyCreature } from '../entities/EnemyCreature.js'
-import { EnemyCutieCthulu } from '../entities/EnemyCutieCthulu.js'
-import { EnemyDreadDrooler } from '../entities/EnemyDreadDrooler.js'
-import { EnemyMutatedFrog } from '../entities/EnemyMutatedFrog.js'
-import { EnemyNutbusterMkII } from '../entities/EnemyNutbusterMkII.js'
-import { EnemyFishmoley } from '../entities/EnemyFishmoley.js'
-import { EnemyGrizzleGuts } from '../entities/EnemyGrizzleGuts.js'
-import { EnemyFlappyFang } from '../entities/EnemyFlappyFang.js'
-import { EnemyBananaBandit } from '../entities/EnemyBananaBandit.js'
-import { EnemyGorilla } from '../entities/EnemyGorilla.js'
-import { EnemyRazor } from '../entities/EnemyRazor.js'
+import { gameState } from '../GameState.js'
+import { Player } from '../characters/Player.js'
+import { EnemyOda } from '../characters/EnemyOda.js'
+import { EnemyJumpingJack } from '../characters/EnemyJumpingJack.js'
+import { EnemyRunningRupert } from '../characters/EnemyRunningRupert.js'
+import { EnemyChunkyCheeks } from '../characters/EnemyChunkyCheeks.js'
+import { EnemySillySally } from '../characters/EnemySillySally.js'
+import { EnemySpider } from '../characters/EnemySpider.js'
+import { EnemySkitterSpindle } from '../characters/EnemySkitterSpindle.js'
+import { EnemyCreature } from '../characters/EnemyCreature.js'
+import { EnemyCutieCthulu } from '../characters/EnemyCutieCthulu.js'
+import { EnemyDreadDrooler } from '../characters/EnemyDreadDrooler.js'
+import { EnemyMutatedFrog } from '../characters/EnemyMutatedFrog.js'
+import { EnemyNutbusterMkII } from '../characters/EnemyNutbusterMkII.js'
+import { EnemyFishmoley } from '../characters/EnemyFishmoley.js'
+import { EnemyGrizzleGuts } from '../characters/EnemyGrizzleGuts.js'
+import { EnemyFlappyFang } from '../characters/EnemyFlappyFang.js'
+import { EnemyBananaBandit } from '../characters/EnemyBananaBandit.js'
+import { EnemyGorilla } from '../characters/EnemyGorilla.js'
+import { EnemyRazor } from '../characters/EnemyRazor.js'
 
 export class Game extends Scene {
   constructor() {
@@ -31,11 +31,11 @@ export class Game extends Scene {
   }
 
   preload() {
-    // Load player images
+    // Player
     this.load.image('player-idle', 'assets/player/idle.png')
     this.load.image('player-jump', 'assets/player/jump.png')
     this.load.image('player-fall', 'assets/player/fall.png')
-    this.load.image('player-spin', 'assets/player/spin.png')
+    this.load.image('player-spin_attack', 'assets/player/spin_attack.png')
     this.load.image('player-death-frame_1', 'assets/player/death-frame_00.png')
     this.load.image('player-death-frame_2', 'assets/player/death-frame_01.png')
     for (let i = 0; i <= 19; i++) {
@@ -43,7 +43,7 @@ export class Game extends Scene {
       this.load.image(`running-frame_${i}`, `assets/player/running-frame_${frame}.png`)
     }
 
-    // Load enemy images
+    // Enemies
     this.load.image('enemy-oda', 'assets/enemies/oda.png')
     this.load.image('enemy-jumping_jack', 'assets/enemies/jumping_jack.png')
     this.load.image('enemy-running_rupert', 'assets/enemies/running_rupert.png')
@@ -65,10 +65,10 @@ export class Game extends Scene {
     this.load.image('enemy-razor', 'assets/enemies/razor.png')
     this.load.image('enemy-grizzle_guts', 'assets/enemies/grizzle_guts-6.png')
 
-    // Load other assets
-    this.load.image('bg_jungle', 'assets/bg_jungle.png')
-    this.load.image('ground', 'assets/ground.png')
+    // Other assets
+    this.load.image('bg-game-jungle', 'assets/bg-game-jungle.png')
     this.load.image('dirt', 'assets/dirt.png')
+    this.load.image('water', 'assets/water.png')
     this.load.image('platform-grass', 'assets/platform-grass.png')
     this.load.image('platform-wood', 'assets/platform-wood.png')
     this.load.image('platform-stone', 'assets/platform-stone.png')
@@ -77,35 +77,33 @@ export class Game extends Scene {
     this.load.image('spikes-top', 'assets/spikes-top.png')
     this.load.image('spikes-left', 'assets/spikes-left.png')
     this.load.image('spikes-right', 'assets/spikes-right.png')
-    this.load.image('box', 'assets/box.png')
-    this.load.image('box-wumpa_fruits', 'assets/box-wumpa_fruits.png')
-    this.load.image('tnt', 'assets/box-tnt.png')
-    this.load.image('tnt-3', 'assets/box-tnt3.png')
-    this.load.image('tnt-2', 'assets/box-tnt2.png')
-    this.load.image('tnt-1', 'assets/box-tnt1.png')
-    this.load.image('explodeTNT', 'assets/explodeTNT.png')
-    this.load.image('water', 'assets/water.png')
+    this.load.image('crate-basic', 'assets/crate-basic.png')
+    this.load.image('crate-basic-break', 'assets/crate-basic-break.png')
+    this.load.image('crate-wumpa_fruits', 'assets/crate-wumpa_fruits.png')
+    this.load.image('crate-tnt', 'assets/crate-tnt.png')
+    this.load.image('crate-tnt-3', 'assets/crate-tnt-3.png')
+    this.load.image('crate-tnt-2', 'assets/crate-tnt-2.png')
+    this.load.image('crate-tnt-1', 'assets/crate-tnt-1.png')
+    this.load.image('crate-tnt-explode', 'assets/crate-tnt-explode.png')
     this.load.image('wumpa_fruit', 'assets/wumpa_fruit.png')
+    this.load.image('mask', 'assets/mask-1.png')
     this.load.image('projectile-nut', 'assets/projectile-nut.png')
     this.load.image('projectile-egg', 'assets/projectile-egg.png')
     this.load.image('projectile-banana', 'assets/projectile-banana.png')
     this.load.image('banana_pile', 'assets/banana_pile.png')
     this.load.image('nutbuster_mk.ii-extended_arm', 'assets/nutbuster_mk_ii-extended_arm.png')
-    this.load.image('enemy-death', 'assets/enemy-death.png')
-    this.load.image('mask', 'assets/mask-1.png')
-    this.load.image('box-smash', 'assets/box-smash.png')
 
-    // Loads sounds
-    this.load.audio('tntSound', 'assets/audio/explosion.mp3')
+    // Audio
+    this.load.audio('tnt-sound_effect', 'assets/audio/sound_effect-tnt.mp3')
   }
 
   create() {
-    // Create background
+    // Background
     this.backgroundManager = new BackgroundManager(this)
     this.backgroundManager.createBackground()
 
     // TNT Explosion sound effect
-    this.explosionSound = this.sound.add('tntSound')
+    this.explosionSound = this.sound.add('tnt-sound_effect')
 
     // Create level elements
     this.levelManager = new LevelManager(this)
@@ -232,13 +230,13 @@ export class Game extends Scene {
 
     // TNT interactions
     this.physics.add.overlap(this.player.sprite, this.levelManager.tntGroup, (player, tnt) => {
-      if (!tnt.getData('tntCountdown')) {
-        tnt.setData('tntCountdown', true)
+      if (!tnt.getData('tnt-countdown')) {
+        tnt.setData('tnt-countdown', true)
         this.explosionSound.play()
 
-        const t1 = this.time.delayedCall(0, () => tnt.setTexture('tnt-3'), [], this)
-        const t2 = this.time.delayedCall(1000, () => tnt.setTexture('tnt-2'), [], this)
-        const t3 = this.time.delayedCall(2000, () => tnt.setTexture('tnt-1'), [], this)
+        const t1 = this.time.delayedCall(0, () => tnt.setTexture('crate-tnt-3'), [], this)
+        const t2 = this.time.delayedCall(1000, () => tnt.setTexture('crate-tnt-2'), [], this)
+        const t3 = this.time.delayedCall(2000, () => tnt.setTexture('crate-tnt-1'), [], this)
         const t4 = this.time.delayedCall(
           3000,
           () => {
@@ -275,15 +273,12 @@ export class Game extends Scene {
   }
 
   handlePlayerEnemyCollision = (playerSprite, enemySprite) => {
-    if (enemySprite.texture.key === 'enemy-death') return
-
     const enemy = this.enemies.find((e) => e.sprite === enemySprite)
     if (!enemy) return
 
     if (enemy.constructor.name === 'EnemyOda') {
       return
     }
-
     if (enemy.constructor.name === 'EnemyJumpingJack') {
       if (this.player.isSpinning) {
         enemy.kill?.()
@@ -430,19 +425,9 @@ export class Game extends Scene {
   }
 
   togglePause() {
-    this.isPaused = !this.isPaused
-
-    if (this.isPaused) {
-      // Pause game
-      this.physics.pause()
-      this.anims.pauseAll()
-      this.pauseMenu.show()
-    } else {
-      // Resume game
-      this.physics.resume()
-      this.anims.resumeAll()
-      this.pauseMenu.hide()
-    }
+    this.input.keyboard.on('keydown-ESC', () => {
+      EventBus.emit('toggle-pause-menu')
+    })
   }
 
   respawnPlayer() {

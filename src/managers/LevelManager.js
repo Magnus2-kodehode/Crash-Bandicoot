@@ -1,5 +1,5 @@
 import { EventBus } from '../EventBus.js'
-import { gameState } from '../gameState.js'
+import { gameState } from '../GameState.js'
 
 export class LevelManager {
   constructor(scene) {
@@ -269,7 +269,7 @@ export class LevelManager {
     ]
 
     boxPositions.forEach((pos) => {
-      const box = this.boxGroup.create(pos.x, pos.y, 'box')
+      const box = this.boxGroup.create(pos.x, pos.y, 'crate-basic')
       box.setScale(0.35)
       box.setSize(250, 250)
       box.setOffset(0, 0)
@@ -287,7 +287,7 @@ export class LevelManager {
     ]
 
     boxWumpaFruitPositions.forEach((pos) => {
-      const boxWumpaFruit = this.boxWumpaFruitGroup.create(pos.x, pos.y, 'box-wumpa_fruits')
+      const boxWumpaFruit = this.boxWumpaFruitGroup.create(pos.x, pos.y, 'crate-wumpa_fruits')
       boxWumpaFruit.setScale(0.35)
       boxWumpaFruit.setSize(250, 250)
       boxWumpaFruit.setOffset(0, 0)
@@ -306,7 +306,7 @@ export class LevelManager {
     ]
 
     tntPositions.forEach((pos) => {
-      const tnt = this.tntGroup.create(pos.x, pos.y, 'tnt')
+      const tnt = this.tntGroup.create(pos.x, pos.y, 'crate-tnt')
       tnt.setScale(0.35)
       tnt.setBounce(0.3)
       tnt.setDepth(4)
@@ -318,7 +318,7 @@ export class LevelManager {
   explodeTNT(tnt) {
     if (!this.scene || !this.scene.sys?.isActive()) return
 
-    const explosion = this.scene.add.sprite(tnt.x, tnt.y, 'explodeTNT')
+    const explosion = this.scene.add.sprite(tnt.x, tnt.y, 'crate-tnt-explode')
     explosion.setScale(0.2)
     explosion.setAlpha(0)
 
@@ -400,23 +400,6 @@ export class LevelManager {
     })
     this.tntTimers = []
   }
-
-  // createWater() {
-  //     const waterPositions = [
-  //         ...
-  //     ];
-
-  //     waterPositions.forEach((pos, index) => {
-  //         const water = this.waterGroup.create(pos.x, pos.y, "water");
-  //         water.setScale(0.35);
-  //         water.setAlpha(0.66);
-  //         water.setDepth(9);
-  //         water.body.setAllowGravity(false);
-  //         if (index % 2 === 1) {
-  //             water.setFlipX(true);
-  //         };
-  //     });
-  // };
 
   createWater() {
     this.waterSprites = []
@@ -521,14 +504,14 @@ export class LevelManager {
     box.setData('smashed', true)
 
     // Play smash animation
-    box.setTexture('box-smash')
+    box.setTexture('crate-basic-break')
     box.setScale(0.15)
 
     // Spawn wumpa fruits (3-5 random fruits)
     const fruitCount = Phaser.Math.Between(3, 5)
     for (let i = 0; i < fruitCount; i++) {
-      const offsetX = Phaser.Math.Between(-10, 50)
-      const offsetY = Phaser.Math.Between(-10, 0)
+      const offsetX = Phaser.Math.Between(-50, 50)
+      const offsetY = Phaser.Math.Between(-10, 10)
 
       const fruit = this.fruitGroup.create(box.x + offsetX, box.y + offsetY, 'wumpa_fruit')
 
@@ -592,17 +575,6 @@ export class LevelManager {
 
   createFruits() {
     this.wumpaSprites = []
-
-    // Horizontal fruit positions
-    const fruits = Array.from({ length: 99 }, (_, i) => ({
-      x: 400 + i * 100,
-      y: 575,
-    }))
-
-    // Platform fruits
-    const platformFruits = [{ x: 0, y: 0 }]
-
-    // const fruitPositions = [...fruits, ...platformFruits];
 
     const fruitPositions = [
       // Ground positions

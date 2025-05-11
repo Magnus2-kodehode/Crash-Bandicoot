@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from 'react'
-import { EventBus } from '../game/EventBus'
-import { gameState } from '../game/gameState'
+import { EventBus } from '../EventBus'
+import { gameState } from '../GameState'
 
-export default function UI_Score() {
+export default function Score() {
   const [score, setScore] = useState(gameState.score)
   const [lives, setLives] = useState(gameState.lives)
   const [fruitCountState, setFruitCountState] = useState(0)
@@ -63,12 +63,12 @@ export default function UI_Score() {
   }, [])
 
   return (
-    <div className='UI-Score'>
-      <div className='UI-WumpaFruit'>
+    <div className='hud-score'>
+      <div className='hud-wumpa_fruit'>
         <img src='assets/wumpa_fruit.png' alt='Wumpa Fruit' />
         {fruitCountState}
       </div>
-      <div className='UI-ExtraLife'>
+      <div className='hud-extra_life'>
         {lives}
         <img src='assets/extra_life.png' alt='Extra Life' />
       </div>

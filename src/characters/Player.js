@@ -32,7 +32,7 @@ export class Player {
     // Running animation
     this.playerFrames = []
     for (let i = 0; i <= 19; i++) {
-      this.playerFrames.push(`player-running-frame_${i}`)
+      this.playerFrames.push(`running-frame_${i}`)
     }
     this.currentPlayerFrame = 0
     this.frameTimer = 0
@@ -62,8 +62,8 @@ export class Player {
     this.isInvincible = false
     this.sprite.setVelocity(0, 0)
     this.sprite.setPosition(x, y)
-    this.canDoubleJump = true
     this.jumpCount = 0
+    this.canDoubleJump = true
   }
 
   spinAttack() {
@@ -71,7 +71,7 @@ export class Player {
 
     this.isSpinning = true
     this.canSpin = false
-    this.sprite.setTexture('player-spin')
+    this.sprite.setTexture('player-spin_attack')
 
     this.spinHitbox.setPosition(this.sprite.x, this.sprite.y)
     this.spinHitbox.setActive(true)
@@ -82,7 +82,7 @@ export class Player {
       if (!enemy.sprite || !enemy.sprite.active) return
       this.scene.physics.world.overlap(this.spinHitbox, enemy.sprite, () => {
         if (enemy.constructor.name === 'EnemyGrizzleGuts') {
-          enemy.takeDamage?.(10)
+          enemy.takeDamage?.(1)
         } else {
           enemy.kill?.()
         }
@@ -102,7 +102,6 @@ export class Player {
     // Spin duration
     this.scene.time.delayedCall(500, () => {
       this.isSpinning = false
-
       this.spinHitbox.setActive(false)
       this.spinHitbox.body.enable = false
       if (!this.isDead) {
@@ -171,7 +170,7 @@ export class Player {
     // Reset jump calculations on touching the ground
     if (this.sprite.body.blocked.down) {
       this.jumpCount = 0
-      this.canDoubleJump = false
+      this.canDoubleJump = true
     }
 
     // Move player left or right

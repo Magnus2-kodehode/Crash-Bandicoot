@@ -42,7 +42,7 @@ export class EnemyFlappyFang {
         if (this.sprite && this.sprite.body) {
           if (!this.isDiving) {
             this.divePhase = 'diving'
-            this.diveVelocity = 5
+            this.diveVelocity = 1
           }
         }
       },

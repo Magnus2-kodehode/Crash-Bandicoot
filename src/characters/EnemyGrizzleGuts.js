@@ -3,7 +3,7 @@ export class EnemyGrizzleGuts {
     this.scene = scene
     this.startX = x
     this.startY = y
-    this.maxHealth = 100
+    this.maxHealth = 5
     this.currentHealth = this.maxHealth
     this.canTakeDamage = true
 
@@ -76,7 +76,7 @@ export class EnemyGrizzleGuts {
     this.healthBar.setPosition(x, y)
   }
 
-  takeDamage(amount = 10) {
+  takeDamage(amount = 1) {
     if (!this.sprite || !this.canTakeDamage) return
 
     this.canTakeDamage = false
@@ -133,11 +133,6 @@ export class EnemyGrizzleGuts {
   }
 
   update() {
-    // Add any enemy update logic here
     if (!this.sprite || !this.sprite.active) return
-
-    // if (this.sprite.body.blocked.down) {
-    //     this.sprite.setVelocityX(0);
-    // }
   }
 }
