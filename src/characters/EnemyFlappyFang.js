@@ -15,9 +15,8 @@ export class EnemyFlappyFang {
 
     this.sprite = scene.physics.add
       .sprite(x, y, 'enemy-flappy_fang')
-      .setSize(450, 300)
-      .setOffset(25, 125)
-      .setCircle(200, 50, 50)
+      .setSize(250, 300)
+      .setOffset(125, 125)
       .setDepth(6)
 
     // Configure physics properties

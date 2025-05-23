@@ -1,19 +1,25 @@
 import { Scene } from 'phaser'
 import { EventBus } from '../EventBus'
-import { volumeManager } from '../utils/volumeManager'
+import { saveManager } from '../utils/SaveManager'
+import { inputManager } from '../utils/InputManager'
+import { volumeManager } from '../utils/VolumeManager'
+import { gameState } from '../GameState'
 
 export class MainMenu extends Scene {
   constructor() {
     super('MainMenu')
 
     // Menu options
-    this.menuOptions = ['Continue', 'New Game', 'Load Game', 'Settings', 'Exit Game']
+    this.menuOptions = ['New Game', 'Load Game', 'Settings', 'Exit Game']
     this.selectedIndex = 0
     this.menuTexts = []
+    this.inputTime = 0
+    this.inputCooldown = 150
     this.logoTween = null
   }
 
   preload() {
+    // Music
     this.musicList = ['8bitRick', '8bitDota', '8bitLoving', 'u_got_that']
     this.musicList.forEach((music) => {
       this.load.audio(music, `assets/audio/music-${music}.mp3`)
@@ -21,6 +27,21 @@ export class MainMenu extends Scene {
   }
 
   create() {
+    // Game save
+    const save = saveManager.load()
+
+    if (save) {
+      gameState.lives = save.lives
+      gameState.score = save.score
+      player.setPosition(save.position.x, save.position.y)
+    }
+
+    if (saveManager.hasSave()) {
+      this.menuOptions[0] = 'Continue'
+    } else {
+      this.menuOptions[0] = 'New Game'
+    }
+
     // Stop any previous music if it's playing
     if (this.music) {
       this.music.stop()
@@ -36,14 +57,24 @@ export class MainMenu extends Scene {
       loop: true,
       volume: volume,
     })
-    this.music.setName('music')
     this.music.play()
 
     // Sfx
-    // ...
+    const sfxVolume = volumeManager.getSfxVolume()
+    this.menuSelectSound = this.sound.add('sfx-menu_select', { volume: sfxVolume })
+    this.menuSelectSound.play()
 
     // Add background image
-    this.add.image(512, 384, 'background-menu')
+    this.add.image(512, 384, 'bg-main_menu')
+
+    // Enable/disable inputs on open/close Settings
+    this.inputEnabled = true
+    EventBus.on('show-settings-menu', () => {
+      this.inputEnabled = false
+    })
+    EventBus.on('hide-settings-menu', () => {
+      this.inputEnabled = true
+    })
 
     // Reset the menu state when the scene is reloaded
     this.menuTexts = []
@@ -66,11 +97,6 @@ export class MainMenu extends Scene {
     })
 
     this.updateMenu() // Highlight the first option
-
-    // Capture keyboard events
-    this.input.keyboard.on('keydown-UP', () => this.moveSelection(-1))
-    this.input.keyboard.on('keydown-DOWN', () => this.moveSelection(1))
-    this.input.keyboard.on('keydown-ENTER', () => this.selectOption())
 
     // Emit event when the current scene is ready
     EventBus.emit('current-scene-ready', this)
@@ -108,7 +134,27 @@ export class MainMenu extends Scene {
     }
   }
 
+  update(time) {
+    if (!this.inputEnabled) return
+
+    const iM = inputManager
+    const now = time
+
+    if (now - this.inputTime < this.inputCooldown) return
+
+    if (iM.isMenuUpPressed()) {
+      this.moveSelection(-1)
+      this.inputTime = now
+    } else if (iM.isMenuDownPressed()) {
+      this.moveSelection(1)
+      this.inputTime = now
+    } else if (iM.isMenuSelectPressed()) {
+      this.selectOption()
+      this.inputTime = now
+    }
+  }
+
   changeScene() {
-    this.scene.start('Game') // Transition to the Game scene
+    this.scene.start('Game')
   }
 }

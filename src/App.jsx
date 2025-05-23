@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react'
 import Phaser from 'phaser'
 import { PhaserGame } from './PhaserGame'
 import { EventBus } from './EventBus'
+import { inputManager } from './utils/InputManager'
 import UI from './ui/UI'
 
 export default function App() {
@@ -28,13 +29,13 @@ export default function App() {
   }
 
   useEffect(() => {
-    const handleTogglePause = () => {
+    const togglePause = () => {
       setShowPauseMenu((prev) => !prev)
     }
 
-    EventBus.on('toggle-pause-menu', handleTogglePause)
+    EventBus.on('toggle-pause-menu', togglePause)
     return () => {
-      EventBus.off('toggle-pause-menu', handleTogglePause)
+      EventBus.off('toggle-pause-menu', togglePause)
     }
   })
 
@@ -49,9 +50,13 @@ export default function App() {
     }
   }, [])
 
+  const closeSettings = () => {
+    setShowSettings(false)
+  }
+
   return (
     <div id='app'>
-      <div className='header'>
+      {/* <div className='header'>
         <div className='title'>Crash Bandicoot: Pixel Pandemonium</div>
         <div className='buttons'>
           <div>
@@ -60,15 +65,17 @@ export default function App() {
             </button>
           </div>
         </div>
-      </div>
+      </div> */}
       <PhaserGame ref={phaserRef} currentActiveScene={currentScene}>
         <UI
           showHUD={showScore}
           showSettings={showSettings}
+          setShowSettings={setShowSettings}
           showPauseMenu={showPauseMenu}
+          setShowPauseMenu={setShowPauseMenu}
           showCutscene={showBossCutscene}
           showSubtitles={showBossSubtitle}
-          onCloseSettings={() => setShowSettings(false)}
+          onCloseSettings={closeSettings}
         />
       </PhaserGame>
     </div>

@@ -11,7 +11,7 @@ export class EnemySpider {
       .sprite(x, y, 'enemy-spider')
       .setSize(400, 390)
       .setOffset(50, 100)
-      .setCircle(200, 50, 100)
+      // .setCircle(200, 50, 100)
       .setDepth(11)
     // .setBounce(0)
     // .setCollideWorldBounds(true)

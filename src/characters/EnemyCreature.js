@@ -8,7 +8,6 @@ export class EnemyCreature {
       .sprite(x, y, 'enemy-creature')
       .setSize(420, 390)
       .setOffset(40, 100)
-      .setCircle(210, 40, 100)
       .setDepth(6)
 
     // Configure physics properties

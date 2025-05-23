@@ -9,9 +9,15 @@ export class EnemyJumpingJack {
     this.sprite = scene.physics.add
       .sprite(x, y, 'enemy-jumping_jack')
       .setSize(380, 380)
-      .setCircle(190, 60, 100)
       .setOffset(60, 100)
+      // .setCircle(190, 60, 100)
       .setDepth(6)
+
+    // Scale size
+    const targetSize = 150
+    const scaleX = targetSize / this.sprite.width
+    const scaleY = targetSize / this.sprite.height
+    this.sprite.setScale(scaleX, scaleY)
 
     // Configure physics properties
     this.sprite.body.setDragX(5000)
@@ -19,13 +25,7 @@ export class EnemyJumpingJack {
     this.sprite.body.setBounce(0)
     this.sprite.setCollideWorldBounds(true)
 
-    // Scale
-    const targetSize = 150
-    const scaleX = targetSize / this.sprite.width
-    const scaleY = targetSize / this.sprite.height
-    this.sprite.setScale(scaleX, scaleY)
-
-    // Start jumping behavior
+    // Start behaviors
     this.setupJumpingBehavior()
   }
 

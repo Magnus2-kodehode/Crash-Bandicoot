@@ -1,10 +1,9 @@
+import Phaser, { DOM } from 'phaser'
 import { Boot } from './scenes/Boot'
+import { Preloader } from './scenes/Preloader'
+import { MainMenu } from './scenes/MainMenu'
 import { Game } from './scenes/Game'
 import { GameOver } from './scenes/GameOver'
-import { MainMenu } from './scenes/MainMenu'
-import Phaser, { DOM } from 'phaser'
-import { Preloader } from './scenes/Preloader'
-import { SettingsMenu } from './scenes/SettingsMenu'
 
 const config = {
   type: Phaser.AUTO,
@@ -23,7 +22,7 @@ const config = {
       debug: true,
     },
   },
-  scene: [Boot, Preloader, MainMenu, SettingsMenu, Game, GameOver],
+  scene: [Boot, Preloader, MainMenu, Game, GameOver],
 }
 
 export default function StartGame(parent) {

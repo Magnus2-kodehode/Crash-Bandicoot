@@ -10,37 +10,35 @@ export class Player {
       .setCollideWorldBounds(true)
     this.sprite.body.setFriction(0, 0)
     this.sprite.body.setDragX(1000)
-
-    // Highest velocity character can reach
     this.sprite.body.setMaxVelocityX(500)
 
+    // States
     this.canDoubleJump = true
     this.jumpCount = 0
     this.canSpin = true
-
     this.isSpinning = false
-    this.spinHitbox = this.scene.physics.add.sprite(x, y, null)
+    this.isDead = false
+    this.isInvincible = false
+
+    // Running animation
+    this.playerFrames = Array.from({ length: 20 }, (_, i) => `running-frame_${i}`)
+    this.currentPlayerFrame = 0
+    this.frameTimer = 0
+    this.frameDelay = 30
+
+    // Spin hitbox
+    this.spinHitbox = scene.physics.add.sprite(x, y, null)
     this.spinHitbox.setScale(0.3)
-    this.spinHitbox.setSize(450, 450)
-    // this.spinHitbox.setOffset(-210, -160);
+    this.spinHitbox.setSize(500, 450)
+    this.spinHitbox.setOffset(-250, 25)
+    // this.spinHitbox.setCircle(275, -250, 0)
     this.spinHitbox.setDepth(-999)
     this.spinHitbox.setVisible(false)
     this.spinHitbox.setActive(false)
     this.spinHitbox.body.setAllowGravity(false)
     this.spinHitbox.body.enable = false
 
-    // Running animation
-    this.playerFrames = []
-    for (let i = 0; i <= 19; i++) {
-      this.playerFrames.push(`running-frame_${i}`)
-    }
-    this.currentPlayerFrame = 0
-    this.frameTimer = 0
-    this.frameDelay = 30
-
-    this.isDead = false
-    this.isInvincible = false
-
+    // Spin hitbox init
     this.scene.time.delayedCall(1, () => {
       this.spinHitbox.setPosition(this.sprite.x - 500, this.sprite.y)
       this.spinHitbox.setActive(true)
@@ -50,20 +48,6 @@ export class Player {
         this.spinHitbox.body.enable = false
       })
     })
-
-    // Mask
-    this.maskSprite = scene.add.sprite(x, y, 'mask')
-    this.maskSprite.setScale(0.35)
-    this.maskSprite.setDepth(this.sprite.depth - 1)
-  }
-
-  respawn(x, y) {
-    this.isDead = false
-    this.isInvincible = false
-    this.sprite.setVelocity(0, 0)
-    this.sprite.setPosition(x, y)
-    this.jumpCount = 0
-    this.canDoubleJump = true
   }
 
   spinAttack() {
@@ -78,8 +62,9 @@ export class Player {
     this.spinHitbox.body.enable = true
 
     // Enemy collision
-    this.scene.enemies.forEach((enemy) => {
-      if (!enemy.sprite || !enemy.sprite.active) return
+    const enemies = this.scene.level?.characters?.enemies || []
+    enemies.forEach((enemy) => {
+      if (!enemy.sprite?.active) return
       this.scene.physics.world.overlap(this.spinHitbox, enemy.sprite, () => {
         if (enemy.constructor.name === 'EnemyGrizzleGuts') {
           enemy.takeDamage?.(1)
@@ -89,17 +74,15 @@ export class Player {
       })
     })
 
-    if (this.scene.levelManager.boxWumpaFruitGroup) {
-      this.scene.physics.world.overlap(
-        this.spinHitbox,
-        this.scene.levelManager.boxWumpaFruitGroup,
-        (hitbox, box) => {
-          this.scene.levelManager.smashWumpaFruitBox(box)
-        }
-      )
+    // Break wumpa fruit crates
+    const crateGroup = this.scene.level?.crates?.boxWumpaFruitGroup
+    if (crateGroup) {
+      this.scene.physics.world.overlap(this.spinHitbox, crateGroup, (_, box) => {
+        this.scene.level.crates.smashWumpaFruitBox(box)
+      })
     }
 
-    // Spin duration
+    // Spin attack duration
     this.scene.time.delayedCall(500, () => {
       this.isSpinning = false
       this.spinHitbox.setActive(false)
@@ -109,7 +92,7 @@ export class Player {
       }
     })
 
-    // Spin cooldown
+    // Spin attack cooldown (duration + delay)
     this.scene.time.delayedCall(750, () => {
       this.canSpin = true
     })
@@ -127,45 +110,52 @@ export class Player {
         this.canDoubleJump = false
       }
     }
-    // console.log(this.jumpCount);
   }
 
   deathAnimation() {
     this.isInvincible = true
     this.isDead = true
     this.sprite.setVelocity(0)
+    this.sprite.setAccelerationX(0)
     this.sprite.setTexture('player-death-frame_1')
     this.sprite.setOffset(125, 25)
     this.scene.time.delayedCall(500, () => {
       this.sprite.setTexture('player-death-frame_2')
       this.sprite.setOffset(125, -50)
     })
-    this.sprite.setAccelerationX(0)
+  }
+
+  respawn(x, y) {
+    this.isDead = false
+    this.isInvincible = false
+    this.sprite.setVelocity(0, 0)
+    this.sprite.setPosition(x, y)
+    this.jumpCount = 0
+    this.canDoubleJump = true
+    this.scene.mask.reset()
+  }
+
+  respawnPlayer() {
+    this.respawn(150, 550)
+    this.sprite.setScale(0.3)
+    this.sprite.setSize(250, 425)
+    this.sprite.setOffset(125, 75)
+    // this.levelManager.resetLevel()
   }
 
   update(time, delta, inputManager) {
     if (this.isDead) return
 
-    // Acceleration value
     const speed = 5000
-
-    // Deceleration modifier
-    const decelerationModifier = 2
-
-    // Velocity cutoff
-    const speedCutoffModifier = 60
-
-    // Velocity cutoff legacy code
-    // const speedStopCutoffModifier = speedCutoffModifier + 10;
-
-    // Jump force value
+    const decel = 2
+    const cutoff = 60
     const jumpPower = -500
 
     // Check movement input
-    const isLeftPressed = inputManager.isLeftPressed()
-    const isRightPressed = inputManager.isRightPressed()
-    const isJumpPressed = inputManager.isJumpJustPressed()
-    const isSpinPressed = inputManager.isSpinJustPressed()
+    const left = inputManager.isMoveLeftPressed()
+    const right = inputManager.isMoveRightPressed()
+    const jump = inputManager.isJumpPressed()
+    const spin = inputManager.isSpinAttackPressed()
 
     // Reset jump calculations on touching the ground
     if (this.sprite.body.blocked.down) {
@@ -173,51 +163,34 @@ export class Player {
       this.canDoubleJump = true
     }
 
-    // Move player left or right
-    if (isLeftPressed) {
-      // this.sprite.setVelocityX(-speed);
+    // Movement
+    if (left) {
       this.sprite.setAccelerationX(-speed)
       this.sprite.setFlipX(true)
-    } else if (isRightPressed) {
-      // this.sprite.setVelocityX(speed);
+    } else if (right) {
       this.sprite.setAccelerationX(speed)
       this.sprite.setFlipX(false)
     } else {
-      if (
-        this.sprite.body.velocity.x > -speedCutoffModifier &&
-        this.sprite.body.velocity.x < speedCutoffModifier
-      ) {
-        // If velocity is low enough. Come to a stop.
-        // this.sprite.setVelocityX(0);
+      if (Math.abs(this.sprite.body.velocity.x) < cutoff) {
         this.sprite.setAccelerationX(0)
-      } else if (this.sprite.body.velocity.x > speedCutoffModifier) {
-        // If velocity is high enough. Accelerate in the opposite direction to slow down.
-        this.sprite.setAccelerationX(-speed / decelerationModifier)
-      } else if (this.sprite.body.velocity.x < -speedCutoffModifier) {
-        // If velocity is high enough. Accelerate in the opposite direction to slow down.
-        this.sprite.setAccelerationX(speed / decelerationModifier)
+      } else {
+        const dir = this.sprite.body.velocity.x > 0 ? -1 : 1
+        this.sprite.setAccelerationX((dir * speed) / decel)
       }
-
-      // this.sprite.setVelocityX(0);
     }
-
-    // console.log(this.sprite.body.velocity.x);
 
     // Handle player animation
     if (!this.isSpinning) {
       if (!this.sprite.body.blocked.down) {
         if (this.sprite.body.velocity.y < 0) {
-          // Player is jumping
           this.sprite.setTexture('player-jump')
         } else if (
           this.sprite.body.velocity.y > 500 ||
           (this.jumpCount == 0 && this.sprite.body.velocity.y > 0)
         ) {
-          // Player is falling
           this.sprite.setTexture('player-fall')
         }
       } else if (this.sprite.body.velocity.x !== 0) {
-        // Player is running
         this.frameTimer += delta
         if (this.frameTimer > this.frameDelay) {
           this.frameTimer = 0
@@ -225,30 +198,23 @@ export class Player {
           this.sprite.setTexture(this.playerFrames[this.currentPlayerFrame])
         }
       } else {
-        // Player is idle
         this.sprite.setTexture('player-idle')
       }
     }
 
-    // Handle jumping
-    if (isJumpPressed) {
-      this.jump(jumpPower)
-    }
+    if (jump) this.jump(jumpPower)
+    if (spin) this.spinAttack()
 
-    // Handle spin attack
-    if (isSpinPressed) {
-      this.spinAttack()
-    }
     // Oppdater posisjon for spinAttack hitbox
-    if (this.spinHitbox) {
-      const direction = this.sprite.flipX ? -1 : 1
-      this.spinHitbox.setPosition(this.sprite.x + 5 * direction, this.sprite.y + 10)
-    }
+    // const dir = this.sprite.flipX ? -1 : 1
+    // this.spinHitbox.setPosition(this.sprite.x + 5 * dir, this.sprite.y + 10)
 
-    // Mask position
-    const maskOffsetX = this.sprite.flipX ? 100 : -100
-    const maskOffsetY = -50 + Math.sin(time * 0.005) * 5
-    this.maskSprite.setPosition(this.sprite.x + maskOffsetX, this.sprite.y + maskOffsetY)
-    this.maskSprite.setFlipX(this.sprite.flipX)
+    const spinHitboxOffsetX = this.sprite.flipX ? -1 : 1
+    const spinHitboxOffsetY = -60
+    this.spinHitbox.setPosition(
+      this.sprite.x + spinHitboxOffsetX,
+      this.sprite.y + spinHitboxOffsetY
+    )
+    this.spinHitbox.setFlipX(this.sprite.flipX)
   }
 }
