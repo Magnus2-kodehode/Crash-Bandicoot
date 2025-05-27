@@ -99,6 +99,7 @@ export class Preloader extends Scene {
     this.load.image('crate-tnt-1', 'assets/crate-tnt-1.png')
     this.load.image('crate-tnt-explode', 'assets/crate-tnt-explode.png')
     this.load.image('wumpa_fruit', 'assets/wumpa_fruit.png')
+    this.load.image('extra_life', 'assets/extra_life.png')
     this.load.image('projectile-nut', 'assets/projectile-nut.png')
     this.load.image('projectile-egg', 'assets/projectile-egg.png')
     this.load.image('projectile-banana', 'assets/projectile-banana.png')
@@ -118,6 +119,9 @@ export class Preloader extends Scene {
     this.load.audio('music-8bitLoving', 'assets/audio/music-8bitLoving.mp3')
     this.load.audio('music-8bitDota', 'assets/audio/music-8bitDota.mp3')
     this.load.audio('music-u_got_that', 'assets/audio/music-u_got_that.mp3')
+
+    // Cutscenes
+    this.load.video('cutscene-boss', 'assets/videos/cutscene-grizzle_guts.mp4')
   }
 
   create() {

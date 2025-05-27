@@ -1,18 +1,28 @@
+import { EventBus } from '../EventBus'
+import { gameState } from '../GameState'
+
 export class ScoreManager {
   constructor(scene) {
     this.scene = scene
     this.fruitGroup = null
+    this.fruitCount = 0
+    this.wumpaSprites = []
   }
 
   create() {
-    // Create fruits
     this.fruitGroup = this.scene.physics.add.group()
     this.createFruits()
+
+    EventBus.on('add-score', this.handleAddScore, this)
+    EventBus.on('lose-life', this.handleLoseLife, this)
+    EventBus.on('reset-game', this.handleResetGame, this)
+  }
+
+  update(time, delta) {
+    this.updateFruits(time)
   }
 
   createFruits() {
-    this.wumpaSprites = []
-
     const fruitPositions = [
       // Ground positions
       { x: 551, y: 575 },
@@ -95,8 +105,6 @@ export class ScoreManager {
   }
 
   updateFruits(time) {
-    if (!this.wumpaSprites) return
-
     const waveAmplitude = 3
     const waveSpeed = 0.003
 
@@ -106,7 +114,33 @@ export class ScoreManager {
     })
   }
 
-  update(time, delta) {
-    this.updateFruits(time)
+  handleAddScore() {
+    gameState.score++
+    this.fruitCount++
+    EventBus.emit('score-updated')
+
+    if (this.fruitCount >= 100) {
+      this.fruitCount = 0
+      gameState.lives++
+      EventBus.emit('score-updated')
+    }
+  }
+
+  handleLoseLife() {
+    gameState.lives = Math.max(gameState.lives - 1, 0)
+    EventBus.emit('score-updated', gameState.lives)
+  }
+
+  handleResetGame() {
+    gameState.score = 0
+    gameState.lives = 3
+    this.fruitCount = 0
+    EventBus.emit('score-updated')
+  }
+
+  destroy() {
+    EventBus.off('add-score', this.handleAddScore, this)
+    EventBus.off('lose-life', this.handleLoseLife, this)
+    EventBus.off('reset-game', this.handleResetGame, this)
   }
 }

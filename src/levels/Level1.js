@@ -11,6 +11,7 @@ import { CrateManager } from '../utils/CrateManager.js'
 import { NpcManager } from '../utils/NpcManager.js'
 import { CollisionManager } from '../utils/CollisionManager.js'
 import { ScoreManager } from '../utils/ScoreManager.js'
+import { Score } from '../ui/Score.js'
 import { CutsceneManager } from '../utils/CutsceneManager.js'
 import { SubtitleManager } from '../utils/SubtitleManager.js'
 
@@ -26,8 +27,9 @@ export class Level1 {
     this.subtitles.create()
     this.background = new BackgroundManager(this.scene)
     this.background.create()
-    this.score = new ScoreManager(this.scene)
-    this.score.create()
+    this.scoreManager = new ScoreManager(this.scene)
+    this.scoreManager.create()
+    this.score = new Score(this.scene, this.scoreManager)
     this.platforms = new PlatformManager(this.scene)
     this.platforms.create()
     this.traps = new TrapManager(this.scene)
@@ -41,7 +43,7 @@ export class Level1 {
       platforms: this.platforms,
       crates: this.crates,
       traps: this.traps,
-      score: this.score,
+      score: this.scoreManager,
     })
 
     this.player = new Player(this.scene, 150, 550)
@@ -57,17 +59,29 @@ export class Level1 {
       levelManager: this.levelManager,
     })
     this.colliders.create()
+
+    this.cutscenes.addCutscene(
+      'cutscene-boss',
+      () => this.scene.player?.sprite?.x > 9500,
+      'cutscene-boss'
+    )
+
+    this.subtitles.addSubtitle(
+      'subtitle-boss',
+      () => this.scene.player?.sprite?.x > 9600,
+      'subtitle-boss'
+    )
   }
 
   update(time, delta) {
     this.traps.updateWaterMovement(time)
-    this.score.updateFruits(time)
+    this.scoreManager.update(time, delta)
 
     this.player?.update(time, delta, inputManager)
     this.mask?.update(time, delta)
     this.characters.update(time, delta)
 
-    // this.cutscenes.checkTrigger(this.player)
-    // this.subtitles.checkTrigger(this.player)
+    this.cutscenes.update(time, delta)
+    this.subtitles.update(time, delta)
   }
 }

@@ -11,6 +11,7 @@ export class CollisionManager {
     this.player = player
     this.enemies = enemies
     this.levelManager = levelManager
+    EventBus.on('player-hit', this.handlePlayerHit, this)
   }
 
   create() {

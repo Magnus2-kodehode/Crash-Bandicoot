@@ -1,4 +1,4 @@
-import { ProjectilesBananaBandit } from './ProjectilesBananaBandit'
+import { EventBus } from '../EventBus'
 
 export class EnemyBananaBandit {
   constructor(scene, x, y) {
@@ -13,6 +13,7 @@ export class EnemyBananaBandit {
       .setOffset(25, 65)
       .setDepth(6)
       .setFlipX(true)
+
     const targetSize = 150
     const scaleX = targetSize / this.sprite.width
     const scaleY = targetSize / this.sprite.height
@@ -29,15 +30,10 @@ export class EnemyBananaBandit {
     this.spriteBananaPile.setScale(0.15)
     this.spriteBananaPile.setDepth(this.sprite.depth - 1)
 
-    // Banana throw
-    this.projectiles = []
-    this.throwTimer = this.scene.time.addEvent({
-      delay: 1500,
-      callback: () => this.throwBanana(),
-      loop: true,
-    })
-
     this.setupJumpingBehavior()
+
+    this.projectiles = []
+    this.setupShootingBehaviour()
   }
 
   reset(x, y) {
@@ -72,25 +68,51 @@ export class EnemyBananaBandit {
     })
   }
 
-  throwBanana() {
-    const direction = this.sprite.flipX ? -1 : 1
-    const offsetX = 0 * direction
-    const offsetY = 0
+  setupShootingBehaviour() {
+    this.shootTimer = this.scene.time.addEvent({
+      delay: 1500,
+      callback: () => {
+        if (this.sprite && this.sprite.active) {
+          this.shootProjectile()
+        }
+      },
+      loop: true,
+    })
+  }
 
-    const banana = new ProjectilesBananaBandit(
-      this.scene,
-      this.sprite.x + offsetX,
-      this.sprite.y + offsetY,
-      direction
-    )
+  shootProjectile() {
+    const direction = this.sprite.flipX ? 1 : -1
+    const offsetX = 50 * direction
+    const offsetY = -25
+    const startX = this.sprite.x + offsetX
+    const startY = this.sprite.y + offsetY
 
-    this.projectiles.push(banana)
+    const projectile = this.scene.physics.add.sprite(startX, startY, 'projectile-banana')
+    projectile.setScale(0.3)
+    projectile.setSize(170, 170)
+    projectile.setOffset(15, 15)
+    projectile.setCircle(80, 20, 20)
+    projectile.setDepth(5)
+    projectile.setVelocity(500, -300)
+    projectile.setAngularVelocity(300)
+    projectile.setCollideWorldBounds(false)
+    projectile.body.setAllowGravity(true)
 
-    this.scene.physics.add.overlap(banana.sprite, this.scene.player.sprite, () => {
+    this.projectiles.push({
+      projectile,
+      update: () => {},
+    })
+
+    this.scene.time.delayedCall(800, () => {
+      if (projectile.active) projectile.destroy()
+    })
+
+    this.scene.physics.add.overlap(projectile, this.scene.player.sprite, () => {
       if (this.scene.player.isSpinning) {
-        banana.sprite.destroy()
+        projectile.destroy()
       } else {
-        this.scene.handlePlayerHit()
+        projectile.destroy()
+        EventBus.emit('player-hit')
       }
     })
   }
@@ -98,8 +120,8 @@ export class EnemyBananaBandit {
   update() {
     if (!this.sprite.active) return
 
-    this.projectiles.forEach((banana) => {
-      banana.update()
+    this.projectiles.forEach((projectile) => {
+      projectile.update()
     })
   }
 }

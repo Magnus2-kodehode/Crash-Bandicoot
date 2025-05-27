@@ -1,4 +1,4 @@
-import { ProjectilesSillySally } from './ProjectilesSillySally'
+import { EventBus } from '../EventBus'
 
 export class EnemySillySally {
   constructor(scene, x, y) {
@@ -45,23 +45,41 @@ export class EnemySillySally {
 
   shootProjectile() {
     const direction = this.sprite.flipX ? -1 : 1
-    // const direction = -1;
-
     const offsetX = 40 * direction
     const offsetY = 20
-
     const startX = this.sprite.x + offsetX
     const startY = this.sprite.y + offsetY
 
-    const projectile = new ProjectilesSillySally(this.scene, startX, startY, direction)
-    this.projectiles.push(projectile)
+    const projectile = this.scene.physics.add.sprite(startX, startY, 'projectile-egg')
+    projectile.setScale(0.25)
+    projectile.setDepth(5)
+    projectile.setCircle(100, 0, 0)
+    projectile.setVelocity(0 * direction, 500)
+    projectile.body.setAllowGravity(false)
 
-    this.scene.physics.add.overlap(projectile.sprite, this.scene.player.sprite, () => {
+    const startYRef = startY
+    const maxDistance = 700
+
+    this.projectiles.push({
+      projectile,
+      update: () => {
+        if (!projectile?.active) return
+
+        projectile.angle += 2 * direction
+
+        const distance = Math.abs(projectile.y - startYRef)
+        if (distance > maxDistance) {
+          projectile.destroy()
+        }
+      },
+    })
+
+    this.scene.physics.add.overlap(projectile, this.scene.player.sprite, () => {
       if (this.scene.player.isSpinning) {
-        projectile.sprite.destroy()
+        projectile.destroy()
       } else {
-        projectile.sprite.destroy()
-        this.scene.handlePlayerHit()
+        projectile.destroy()
+        EventBus.emit('player-hit')
       }
     })
   }
@@ -81,8 +99,8 @@ export class EnemySillySally {
   }
 
   update() {
-    // Add any enemy update logic here
     if (!this.sprite.active) return
+
     const velocity = this.speed * this.direction
     this.sprite.setVelocityX(velocity)
     this.sprite.setFlipX(this.direction > 0)

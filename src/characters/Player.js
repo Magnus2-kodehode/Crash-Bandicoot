@@ -1,3 +1,5 @@
+import { gameState } from '../GameState'
+
 export class Player {
   constructor(scene, x, y) {
     this.scene = scene
@@ -85,8 +87,10 @@ export class Player {
     // Spin attack duration
     this.scene.time.delayedCall(500, () => {
       this.isSpinning = false
+      this.spinHitbox.setPosition(-500, -500) // not working, need fix
       this.spinHitbox.setActive(false)
       this.spinHitbox.body.enable = false
+
       if (!this.isDead) {
         this.sprite.setTexture('player-idle')
       }
@@ -145,6 +149,11 @@ export class Player {
 
   update(time, delta, inputManager) {
     if (this.isDead) return
+    if (gameState.isCutscenePlaying) {
+      this.sprite.setVelocity(0)
+      this.sprite.setAcceleration(0)
+      return
+    }
 
     const speed = 5000
     const decel = 2

@@ -1,4 +1,4 @@
-import { ProjectilesChunkyCheeks } from './ProjectilesChunkyCheeks'
+import { EventBus } from '../EventBus'
 
 export class EnemyChunkyCheeks {
   constructor(scene, x, y) {
@@ -56,24 +56,42 @@ export class EnemyChunkyCheeks {
   }
 
   shootProjectile() {
-    // const direction = this.sprite.flipX ? -1 : 1;
-    const direction = -1
-
+    const direction = this.sprite.flipX ? 1 : -1
     const offsetX = 70 * direction
     const offsetY = -50
-
     const startX = this.sprite.x + offsetX
     const startY = this.sprite.y + offsetY
 
-    const projectile = new ProjectilesChunkyCheeks(this.scene, startX, startY, direction)
-    this.projectiles.push(projectile)
+    const projectile = this.scene.physics.add.sprite(startX, startY, 'projectile-nut')
+    projectile.setScale(0.25)
+    projectile.setCircle(100, 0, 0)
+    projectile.setDepth(5)
+    projectile.setVelocity(500 * direction, 0)
+    projectile.body.setAllowGravity(false)
 
-    this.scene.physics.add.overlap(projectile.sprite, this.scene.player.sprite, () => {
+    const startXRef = startX
+    const maxDistance = 1024
+
+    this.projectiles.push({
+      projectile,
+      update: () => {
+        if (!projectile?.active) return
+
+        projectile.angle += 5 * direction
+
+        const distance = Math.abs(projectile.x - startXRef)
+        if (distance > maxDistance) {
+          projectile.destroy()
+        }
+      },
+    })
+
+    this.scene.physics.add.overlap(projectile, this.scene.player.sprite, () => {
       if (this.scene.player.isSpinning) {
-        projectile.sprite.destroy()
+        projectile.destroy()
       } else {
-        projectile.sprite.destroy()
-        this.scene.handlePlayerHit()
+        projectile.destroy()
+        EventBus.emit('player-hit')
       }
     })
   }
@@ -90,7 +108,6 @@ export class EnemyChunkyCheeks {
   }
 
   update() {
-    // Add any enemy update logic here
     if (!this.sprite.active) return
 
     this.projectiles.forEach((projectile) => {

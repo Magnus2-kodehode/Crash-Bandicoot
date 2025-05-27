@@ -43,7 +43,7 @@ export class NpcManager {
       new EnemyBananaBandit(this.scene, 5263, 110),
       new EnemyGorilla(this.scene, 6323, 200),
       new EnemyRazor(this.scene, 7013, 700),
-      new EnemyGrumpuff(this.scene, 500, 500),
+      new EnemyGrumpuff(this.scene, 3333, 100),
       new EnemyGrizzleGuts(this.scene, 10000, 300),
     ]
   }
