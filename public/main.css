@@ -9,18 +9,6 @@
   margin: 0;
 }
 
-#app {
-  width: fit-content;
-  height: fit-content;
-  /* padding: 10px; */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  justify-self: center;
-  align-self: center;
-}
-
 body {
   color: rgb(240, 240, 240);
   font-family: Arial, Helvetica, sans-serif;
@@ -34,16 +22,25 @@ body {
   align-items: center;
 }
 
-.header {
-  width: 100%;
-  margin: 10px 0px;
+#app {
+  width: fit-content;
+  height: fit-content;
+  /* padding: 10px; */
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
 }
 
-.title {
-  font-size: 32px;
+#game-container {
+  font-family: 'Zoinks';
+  /* outline: white 2px solid; */
+  height: 100dvh;
+  width: 100dvw;
+  z-index: 999;
+  justify-self: center;
+  align-self: center;
+  overflow: hidden;
 }
 
 .buttons {
@@ -78,17 +75,6 @@ body {
     border: 2px solid rgba(255, 255, 255, 0.3);
     color: rgba(255, 255, 255, 0.3);
   }
-}
-
-#game-container {
-  font-family: 'Zoinks';
-  outline: white 2px solid;
-  height: 768px;
-  width: 1024px;
-  z-index: 999;
-  justify-self: center;
-  align-self: center;
-  overflow: hidden;
 }
 
 .ui {
